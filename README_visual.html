@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bioluminescence-med</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#04080f; --surface:#080f1c; --border:rgba(0,200,180,0.14);
+    --teal:#00c8b4; --teal-d:rgba(0,200,180,0.07);
+    --purple:#9b6dff; --purple-d:rgba(155,109,255,0.07);
+    --amber:#f5a623; --amber-d:rgba(245,166,35,0.07);
+    --coral:#ff6b6b; --coral-d:rgba(255,107,107,0.07);
+    --blue:#4fc3f7; --blue-d:rgba(79,195,247,0.07);
+    --text:#e8f4f0; --muted:#6a8e86;
+    --mono:'Space Mono',monospace; --display:'Syne',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.8;overflow-x:hidden;}
+  body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:999;}
+
+  .glow-a{position:fixed;top:-120px;right:-120px;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(0,200,180,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  .glow-b{position:fixed;bottom:-180px;left:-180px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(155,109,255,0.04) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+  .particles{position:fixed;top:0;right:0;width:380px;height:280px;pointer-events:none;z-index:0;}
+  @keyframes blink{0%,100%{opacity:.15}50%{opacity:.95}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:translateY(0)}}
+
+  .wrap{max-width:860px;margin:0 auto;padding:64px 40px 100px;position:relative;z-index:1;}
+
+  /* HERO */
+  .hero{margin-bottom:68px;}
+  .eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:18px;display:flex;align-items:center;gap:10px;opacity:0;animation:fadeUp .5s ease forwards .1s;}
+  .eyebrow::before{content:'';display:block;width:22px;height:1px;background:var(--teal);}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(36px,6.5vw,68px);line-height:1.0;letter-spacing:-.02em;margin-bottom:8px;opacity:0;animation:fadeUp .6s ease forwards .2s;}
+  h1 .ac{color:var(--teal);}
+  h1 .dm{color:var(--muted);}
+  .hero-sub{font-size:13px;color:var(--muted);max-width:530px;line-height:1.9;margin-top:22px;opacity:0;animation:fadeUp .6s ease forwards .35s;}
+  .hero-sub strong{color:var(--text);font-weight:700;}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;opacity:0;animation:fadeUp .6s ease forwards .45s;}
+  .badge{font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:3px;border:1px solid;font-family:var(--mono);}
+  .bt{color:var(--teal);border-color:rgba(0,200,180,.22);background:var(--teal-d);}
+  .bp{color:var(--purple);border-color:rgba(155,109,255,.22);background:var(--purple-d);}
+  .ba{color:var(--amber);border-color:rgba(245,166,35,.22);background:var(--amber-d);}
+  .bb{color:var(--blue);border-color:rgba(79,195,247,.22);background:var(--blue-d);}
+
+  hr{border:none;border-top:1px solid var(--border);margin:50px 0;}
+
+  .sl{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:22px;display:flex;align-items:center;gap:12px;}
+  .sl::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  h2{font-family:var(--display);font-size:22px;font-weight:700;margin-bottom:26px;color:var(--text);}
+
+  /* PULL QUOTE */
+  .pq{border-left:2px solid var(--teal);padding:18px 26px;background:rgba(0,200,180,0.04);border-radius:0 6px 6px 0;margin-bottom:48px;}
+  .pq p{font-family:var(--display);font-size:17px;font-weight:700;line-height:1.55;color:var(--text);}
+  .pq p em{color:var(--teal);font-style:normal;}
+  .pq .attr{margin-top:10px;font-size:11px;color:var(--muted);}
+
+  /* ARCHITECTURE */
+  .arch-row{display:grid;grid-template-columns:80px 1fr;gap:12px;align-items:start;margin-bottom:18px;}
+  .rtag{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:right;padding-top:13px;line-height:1.4;}
+  .rcards{display:flex;gap:10px;flex-wrap:wrap;}
+  .card{border:1px solid;border-radius:6px;padding:11px 15px;flex:1;min-width:110px;transition:transform .18s ease;}
+  .card:hover{transform:translateY(-2px);}
+  .cn{font-family:var(--display);font-size:13px;font-weight:700;margin-bottom:3px;}
+  .cd{font-size:10px;color:var(--muted);line-height:1.5;}
+  .ct{border-color:rgba(0,200,180,.2);background:var(--teal-d);} .ct .cn{color:var(--teal);}
+  .cp{border-color:rgba(155,109,255,.2);background:var(--purple-d);} .cp .cn{color:var(--purple);}
+  .cam{border-color:rgba(245,166,35,.2);background:var(--amber-d);} .cam .cn{color:var(--amber);}
+  .cc{border-color:rgba(255,107,107,.2);background:var(--coral-d);} .cc .cn{color:var(--coral);}
+  .cb{border-color:rgba(79,195,247,.2);background:var(--blue-d);} .cb .cn{color:var(--blue);}
+  .fd{text-align:center;color:var(--muted);font-size:16px;opacity:.35;margin:-4px 0 8px 92px;}
+
+  /* NOTEBOOKS */
+  .nb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:14px;margin-bottom:48px;}
+  .nb{border:1px solid var(--border);border-radius:8px;padding:18px 20px;background:var(--surface);position:relative;overflow:hidden;transition:border-color .2s;}
+  .nb:hover{border-color:rgba(0,200,180,.28);}
+  .nb::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .nb-01::before{background:var(--teal);}
+  .nb-02::before{background:var(--purple);}
+  .nb-03::before{background:var(--amber);}
+  .nb-04::before{background:var(--coral);}
+  .nb-05::before{background:var(--blue);}
+  .nb-06::before{background:linear-gradient(90deg,var(--teal),var(--purple));}
+  .nn{font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:.1em;}
+  .nt{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.3;}
+  .nd{font-size:11px;color:var(--muted);line-height:1.65;}
+  .ntag{display:inline-block;margin-top:10px;font-size:10px;padding:2px 7px;border-radius:2px;letter-spacing:.06em;}
+  .tt{background:var(--teal-d);color:var(--teal);}
+  .tp{background:var(--purple-d);color:var(--purple);}
+  .ta{background:var(--amber-d);color:var(--amber);}
+  .tc{background:var(--coral-d);color:var(--coral);}
+  .tb{background:var(--blue-d);color:var(--blue);}
+
+  /* FILE TREE */
+  .tree{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px 28px;font-family:var(--mono);font-size:12px;line-height:2.1;margin-bottom:48px;overflow-x:auto;}
+  .tree .dir{color:var(--teal);}
+  .tree .f{color:var(--muted);}
+  .tree .f em{color:var(--text);font-style:normal;}
+  .tree .note{color:rgba(106,142,134,.38);}
+  .tree .hi{color:var(--amber);}
+  .i1{padding-left:20px;} .i2{padding-left:40px;}
+
+  /* LEARNINGS */
+  .learnings{margin-bottom:48px;}
+  .learning{display:grid;grid-template-columns:24px 1fr;gap:18px;align-items:start;padding:14px 0;border-bottom:1px solid var(--border);}
+  .learning:last-child{border-bottom:none;}
+  .ln{font-size:10px;color:var(--teal);padding-top:2px;}
+  .lt{font-size:13px;color:var(--muted);line-height:1.75;}
+  .lt strong{color:var(--text);font-weight:700;}
+
+  /* CODE */
+  .codeblock{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:20px 24px;font-family:var(--mono);font-size:12px;line-height:2.1;margin-bottom:14px;overflow-x:auto;}
+  .codeblock .pr{color:var(--teal);user-select:none;}
+  .codeblock .cm{color:rgba(106,142,134,.4);}
+
+  /* FOOTER */
+  footer{margin-top:80px;padding-top:28px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+  .fl{font-size:11px;color:var(--muted);}
+  .fl strong{color:var(--teal);}
+  .fr{font-size:10px;color:rgba(106,142,134,.3);letter-spacing:.12em;text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<div class="glow-a"></div>
+<div class="glow-b"></div>
+
+<svg class="particles" viewBox="0 0 380 280" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="55"  cy="35"  r="2"   fill="#00c8b4" style="animation:blink 2.3s ease-in-out infinite"/>
+  <circle cx="175" cy="18"  r="1.5" fill="#00c8b4" style="animation:blink 3.1s ease-in-out infinite .4s"/>
+  <circle cx="300" cy="52"  r="3"   fill="#00c8b4" style="animation:blink 2.7s ease-in-out infinite .8s"/>
+  <circle cx="365" cy="28"  r="2"   fill="#9b6dff" style="animation:blink 1.9s ease-in-out infinite .2s"/>
+  <circle cx="235" cy="75"  r="1.5" fill="#00c8b4" style="animation:blink 3.4s ease-in-out infinite 1s"/>
+  <circle cx="125" cy="88"  r="2"   fill="#9b6dff" style="animation:blink 2.5s ease-in-out infinite .6s"/>
+  <circle cx="345" cy="98"  r="1.5" fill="#00c8b4" style="animation:blink 2.1s ease-in-out infinite 1.2s"/>
+  <circle cx="85"  cy="125" r="2.5" fill="#00c8b4" style="animation:blink 3.6s ease-in-out infinite .3s"/>
+  <circle cx="265" cy="138" r="1.5" fill="#9b6dff" style="animation:blink 2.9s ease-in-out infinite .7s"/>
+  <circle cx="375" cy="155" r="2"   fill="#00c8b4" style="animation:blink 2.2s ease-in-out infinite 1.5s"/>
+  <circle cx="38"  cy="195" r="1.5" fill="#9b6dff" style="animation:blink 3.2s ease-in-out infinite .5s"/>
+  <circle cx="195" cy="205" r="3"   fill="#00c8b4" style="animation:blink 1.8s ease-in-out infinite .9s"/>
+  <circle cx="310" cy="180" r="1.5" fill="#f5a623" style="animation:blink 2.6s ease-in-out infinite 1.1s"/>
+  <circle cx="150" cy="160" r="2"   fill="#00c8b4" style="animation:blink 3.0s ease-in-out infinite .35s"/>
+</svg>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="eyebrow">mediterranean ML · ocean sensing</div>
+    <h1>
+      <span class="dm">bio</span><span class="ac">luminescence</span><br>
+      <span class="dm">— med</span>
+    </h1>
+    <p class="hero-sub">
+      The Mediterranean glows at night and almost nobody is tracking it at scale.
+      This project builds a <strong>bioluminescence probability field</strong> from satellite proxies
+      — SST anomalies, chlorophyll-a, upwelling signals — trained on sparse ship observations,
+      then flags the bloom events that don't fit the seasonal pattern.
+    </p>
+    <div class="badges">
+      <span class="badge bt">PyTorch</span>
+      <span class="badge bt">xarray</span>
+      <span class="badge bt">cartopy</span>
+      <span class="badge bp">CMEMS</span>
+      <span class="badge bp">ERA5</span>
+      <span class="badge ba">XGBoost</span>
+      <span class="badge ba">LSTM autoencoder</span>
+      <span class="badge bb">spatial block CV</span>
+      <span class="badge bb">SHAP</span>
+    </div>
+  </div>
+
+  <!-- QUESTION -->
+  <div class="sl">the question</div>
+  <div class="pq">
+    <p>Can you predict <em>where the ocean is likely glowing tonight</em> using nothing but satellite observables — and catch the events that don't fit the pattern?</p>
+    <div class="attr">Ground truth: MBARI ship logs + Copernicus biogeochemistry reanalysis</div>
+  </div>
+
+  <hr>
+
+  <!-- ARCHITECTURE -->
+  <div class="sl">project architecture</div>
+  <h2>how data moves through the project</h2>
+
+  <div class="arch-row">
+    <div class="rtag">sources</div>
+    <div class="rcards">
+      <div class="card ct"><div class="cn">CMEMS</div><div class="cd">SST, CHL-a, currents, MLD</div></div>
+      <div class="card ct"><div class="cn">MBARI logs</div><div class="cd">Ship biolum. obs. (labels)</div></div>
+      <div class="card ct"><div class="cn">CMEMS Biogeo</div><div class="cd">O₂, nutrients, pH</div></div>
+      <div class="card ct"><div class="cn">ERA5</div><div class="cd">Wind stress, PAR</div></div>
+    </div>
+  </div>
+  <div class="fd">↓</div>
+
+  <div class="arch-row">
+    <div class="rtag">prep</div>
+    <div class="rcards">
+      <div class="card cp"><div class="cn">Grid alignment</div><div class="cd">0.25° interpolation via xarray</div></div>
+      <div class="card cp"><div class="cn">Gap filling</div><div class="cd">Optimal interpolation for cloud cover</div></div>
+      <div class="card cp"><div class="cn">Feature engineering</div><div class="cd">SST anomaly · upwelling index · PAR×CHL</div></div>
+    </div>
+  </div>
+  <div class="fd">↓</div>
+
+  <div class="arch-row">
+    <div class="rtag">models</div>
+    <div class="rcards">
+      <div class="card cam"><div class="cn">Module 1 — probability field</div><div class="cd">XGBoost · spatial block CV · P(biolum) per grid cell per day</div></div>
+      <div class="card cc"><div class="cn">Module 2 — anomaly detection</div><div class="cd">LSTM autoencoder · reconstruction error · bloom event catalogue</div></div>
+    </div>
+  </div>
+  <div class="fd">↓</div>
+
+  <div class="arch-row">
+    <div class="rtag">output</div>
+    <div class="rcards">
+      <div class="card cb"><div class="cn">Probability atlas</div><div class="cd">Seasonal animated maps of the Med (cartopy)</div></div>
+      <div class="card cb"><div class="cn">Bloom catalogue</div><div class="cd">Flagged events · SHAP attribution · literature cross-check</div></div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- NOTEBOOKS -->
+  <div class="sl">notebooks</div>
+  <h2>six notebooks, one story</h2>
+  <div class="nb-grid">
+
+    <div class="nb nb-01">
+      <div class="nn">01 · EDA</div>
+      <div class="nt">Mediterranean from above</div>
+      <div class="nd">First look at CMEMS data. Seasonal chlorophyll blooms, SST anomaly maps, current fields. Before any model gets written — this is where the domain understanding lives.</div>
+      <span class="ntag tt">cartopy · xarray</span>
+    </div>
+
+    <div class="nb nb-02">
+      <div class="nn">02 · Features</div>
+      <div class="nt">Building the proxy set</div>
+      <div class="nd">SST anomaly vs climatology, chlorophyll-a, mixed layer depth, PAR × CHL interaction, wind stress curl for upwelling detection. The notebook that shows you actually read the papers.</div>
+      <span class="ntag tp">domain features</span>
+    </div>
+
+    <div class="nb nb-03">
+      <div class="nn">03 · Model</div>
+      <div class="nt">Probability field</div>
+      <div class="nd">XGBoost regression against MBARI labels. Spatial block CV — not random splits, because random splits leak autocorrelation. One decision that separates people who've thought about this from people who haven't.</div>
+      <span class="ntag ta">XGBoost · spatial CV</span>
+    </div>
+
+    <div class="nb nb-04">
+      <div class="nn">04 · Anomalies</div>
+      <div class="nt">What doesn't fit</div>
+      <div class="nd">LSTM autoencoder on the probability time series per grid cell. High reconstruction error means something unusual is happening. Outputs a dated catalogue of anomalous bloom events with severity scores.</div>
+      <span class="ntag tc">LSTM · anomaly detection</span>
+    </div>
+
+    <div class="nb nb-05">
+      <div class="nn">05 · Atlas</div>
+      <div class="nt">Making it look like a paper</div>
+      <div class="nd">Seasonal probability maps, bloom event overlays, SHAP waterfall charts. Honestly took as long as the model. Cartopy coastline rendering at the right resolution is genuinely fiddly.</div>
+      <span class="ntag tb">cartopy · SHAP · matplotlib</span>
+    </div>
+
+    <div class="nb nb-06">
+      <div class="nn">06 · Validation</div>
+      <div class="nt">Checking against the literature</div>
+      <div class="nd">Two published papers on Mediterranean bioluminescence — one from the Ligurian Sea, one from the Adriatic. Does our bloom catalogue overlap with theirs? Where it doesn't: why not?</div>
+      <span class="ntag tt">validation · science</span>
+    </div>
+
+  </div>
+
+  <hr>
+
+  <!-- FILE TREE -->
+  <div class="sl">structure</div>
+  <h2>repo layout</h2>
+  <div class="tree">
+<div><span class="dir">bioluminescence-med/</span></div>
+<div class="i1"><span class="dir">data/</span></div>
+<div class="i2"><span class="f"><em>download_cmems.py</em>     <span class="note"># SST, CHL, currents via CMEMS API</span></span></div>
+<div class="i2"><span class="f"><em>download_era5.py</em>      <span class="note"># wind, PAR via CDS API</span></span></div>
+<div class="i2"><span class="f"><em>download_mbari.py</em>     <span class="note"># biolum observations (ground truth)</span></span></div>
+<div class="i2"><span class="f">README.md                  <span class="note"># dataset descriptions + citations</span></span></div>
+<div class="i1"><span class="dir">notebooks/</span></div>
+<div class="i2"><span class="hi">01_eda_mediterranean.ipynb</span></div>
+<div class="i2"><span class="hi">02_feature_engineering.ipynb</span></div>
+<div class="i2"><span class="hi">03_probability_model.ipynb</span></div>
+<div class="i2"><span class="hi">04_anomaly_detection.ipynb</span></div>
+<div class="i2"><span class="hi">05_visualisation_atlas.ipynb</span></div>
+<div class="i2"><span class="hi">06_validation_literature.ipynb</span></div>
+<div class="i1"><span class="dir">src/</span></div>
+<div class="i2"><span class="f"><em>data_utils.py</em>         <span class="note"># loaders, grid alignment, gap fill</span></span></div>
+<div class="i2"><span class="f"><em>features.py</em>           <span class="note"># proxy feature construction</span></span></div>
+<div class="i2"><span class="f"><em>spatial_cv.py</em>         <span class="note"># block cross-validation splits</span></span></div>
+<div class="i2"><span class="f"><em>anomaly.py</em>            <span class="note"># LSTM autoencoder + threshold logic</span></span></div>
+<div class="i2"><span class="f"><em>plotting.py</em>           <span class="note"># cartopy helpers, SHAP plots</span></span></div>
+<div class="i1"><span class="f">requirements.txt</span></div>
+<div class="i1"><span class="f">COMMIT_ROADMAP.md          <span class="note"># how this was built, step by step</span></span></div>
+<div class="i1"><span class="f">.gitignore                 <span class="note"># data/, checkpoints/, *.nc excluded</span></span></div>
+  </div>
+
+  <hr>
+
+  <!-- WHAT I LEARNED -->
+  <div class="sl">what i learned</div>
+  <h2>honest notes</h2>
+  <div class="learnings">
+    <div class="learning">
+      <div class="ln">01</div>
+      <div class="lt"><strong>Spatial CV is non-negotiable.</strong> My first run used random splits and got suspiciously good scores. Switched to block CV — held out 4° × 4° spatial chunks — and the numbers dropped ~15%. That's the real number. The first one was memorising autocorrelation.</div>
+    </div>
+    <div class="learning">
+      <div class="ln">02</div>
+      <div class="lt"><strong>PAR × CHL interaction beat SST anomaly as the top feature.</strong> SHAP confirmed it, and it makes physical sense — bioluminescence in dinoflagellates is partly a stress response to photosynthetic conditions. I didn't expect it to rank first but it did, every fold.</div>
+    </div>
+    <div class="learning">
+      <div class="ln">03</div>
+      <div class="lt"><strong>The autoencoder flagged the 2018 Adriatic bloom before I knew it existed.</strong> Found a 2021 paper afterwards that confirmed it. That was the moment this stopped feeling like a homework exercise.</div>
+    </div>
+    <div class="learning">
+      <div class="ln">04</div>
+      <div class="lt"><strong>Cloud cover is a real problem.</strong> Some cells near the Ligurian coast are missing 40+ days a year in winter. Rather than pretending gap-filled values are real observations, I flagged low-confidence predictions separately. The model knows what it doesn't know.</div>
+    </div>
+    <div class="learning">
+      <div class="ln">05</div>
+      <div class="lt"><strong>matplotlib's perceptually uniform colormaps don't work well for probability fields.</strong> Viridis and cividis wash out the spatial structure. Ended up building a custom diverging map — dark ocean blue to bioluminescence teal — which made the patterns readable at a glance.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SETUP -->
+  <div class="sl">setup</div>
+  <h2>get running</h2>
+  <div class="codeblock">
+<span class="cm"># clone and install</span>
+<div><span class="pr">$ </span>git clone https://github.com/YOUR_USERNAME/bioluminescence-med.git</div>
+<div><span class="pr">$ </span>cd bioluminescence-med && pip install -r requirements.txt</div>
+  </div>
+  <div class="codeblock">
+<span class="cm"># download data (free CMEMS + CDS accounts required)</span>
+<div><span class="pr">$ </span>python data/download_cmems.py</div>
+<div><span class="pr">$ </span>python data/download_era5.py</div>
+<div><span class="pr">$ </span>python data/download_mbari.py</div>
+  </div>
+  <div class="codeblock">
+<span class="cm"># run notebooks in order</span>
+<div><span class="pr">$ </span>jupyter lab notebooks/</div>
+  </div>
+
+  <hr>
+
+  <!-- NEXT STEPS -->
+  <div class="sl">still open</div>
+  <div class="learnings">
+    <div class="learning">
+      <div class="ln">→</div>
+      <div class="lt">Replace XGBoost with a ConvLSTM to forecast spatial fields rather than single-cell series. The spatial structure is being thrown away right now — that's the obvious next step.</div>
+    </div>
+    <div class="learning">
+      <div class="ln">→</div>
+      <div class="lt">Calibrate the probability outputs. They're not well-calibrated against sparse MBARI labels. Isotonic regression or conformal prediction would fix this and matter a lot for any operational use.</div>
+    </div>
+    <div class="learning">
+      <div class="ln">→</div>
+      <div class="lt">Extend to the Black Sea. CMEMS coverage is good there and it has its own distinct ecology. I suspect the model won't generalise without retraining but it would be interesting to see exactly where it breaks.</div>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="sl">references</div>
+  <div style="font-size:12px;color:var(--muted);line-height:2.3;">
+    <div>Lapota et al. (1988) — Bioluminescence measurements in the Southern California Bight, <em style="color:var(--text)">J. Exp. Mar. Biol. Ecol.</em></div>
+    <div>Moline et al. (2009) — Bioluminescence in the sea, <em style="color:var(--text)">Oceanography</em></div>
+    <div>Cusack et al. (2019) — Bioluminescence observations in the Ligurian Sea</div>
+    <div>Koprivnjak et al. (2021) — Anomalous bloom event, Northern Adriatic</div>
+    <div>CMEMS — Copernicus Marine Environment Monitoring Service, <em style="color:var(--text)">marine.copernicus.eu</em></div>
+  </div>
+
+  <footer>
+    <div class="fl">built by <strong>YOUR_NAME</strong> · study project · 2025</div>
+    <div class="fr">bioluminescence-med</div>
+  </footer>
+
+</div>
+</body>
+</html>
